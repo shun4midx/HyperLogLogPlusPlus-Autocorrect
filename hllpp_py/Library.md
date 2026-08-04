@@ -66,7 +66,7 @@ More detail can be found in my [GitHub Repo](https://github.com/shun4midx/HyperL
 TL;DR it is way more accurate than traditional non-ML, non-language-specific algorithms such as BK-Tree and SymSpell and it also quite fast.
 
 ## Remark on Keyboards
-As a side note, I made the QWERTY keyboard (including AZERTY, QWERTZ, Colemak, Dvorak, or any other custom keyboard layout) as toggleable parameters to influence my HLLPP autocorrection, since I am coding with [Ducky](https://github.com/ducky4life) to create an HLLPP Android keyboard. In this case, the effect on runtime was negligble for the `20k_database.txt` file, but achieving accuracy of **71~72%** and **88~89%**, for the autocorrection and top 3 results respectively. However, the main takeaway of this repository is how strong HLLPP is without the knowledge of a keyboard layout, which is why I make it something that can be turned off, and most results woud be dedicated to that.
+As a side note, I made the QWERTY keyboard (including AZERTY, QWERTZ, Colemak, Dvorak, or any other custom keyboard layout) as toggleable parameters to influence my HLLPP autocorrection, since I am coding with [Ducky](https://github.com/ducky4life) to create an HLLPP Android keyboard. In this case, the total runtime over the 528 queries was about 1.0 to 1.5 seconds slower for the `20k_database.txt` file, but achieving accuracy of **71~72%** and **88~89%**, for the autocorrection and top 3 results respectively. However, the main takeaway of this repository is how strong HLLPP is without the knowledge of a keyboard layout, which is why I make it something that can be turned off, and most results woud be dedicated to that.
 
 Notice, these keyboards are accessible in `Python` for example via:
 
