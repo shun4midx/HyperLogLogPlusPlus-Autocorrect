@@ -1,6 +1,6 @@
 Nevada
 Presbyterian
-sugar
+fax
 Stephen
 Susan
 ability
@@ -68,7 +68,7 @@ butter
 button
 by_by
 caller
-Nevada
+sense
 caveats
 cemetery
 changing

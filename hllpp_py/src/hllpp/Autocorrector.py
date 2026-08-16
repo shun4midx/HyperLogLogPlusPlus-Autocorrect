@@ -41,26 +41,6 @@ def extract_qgrams(word, q=2, fuzzier=None): # `fuzzier` is retained only for ba
 
     return qgrams
 
-
-def extract_reversed_qgrams(word, q=2): # extract locally reversed q-gram features and also space variants
-    if len(word) < q:
-        return []
-
-    if q != 2:
-        return [word[i : i + q][::-1] for i in range(len(word) - q + 1)]
-
-    qgrams = []
-
-    for i in range(len(word) - 1):
-        left = word[i]
-        right = word[i + 1]
-
-        qgrams.append(f"{right}{left}")
-        qgrams.append(f"{right} ")
-        qgrams.append(f" {left}")
-
-    return qgrams
-
 # ======== REPACKAGING ======== #
 
 def is_valid(word, letters=None):
@@ -114,11 +94,11 @@ class Results:
     scores: Dict[str, ScoreValue]
 
 class Autocorrector:
-    # The algorithm basically relies on padded q-grams, a separate loose reversed channel, adjacent-transposition rescue, and keyboard-aware edit distance.
+    # The algorithm relies on reverse-closed padded q-grams, a separate loose reversed channel, adjacent-transposition rescue, and keyboard-aware edit distance.
     # Default non-custom imported keyboards here would disregarded special characters (such as commas, not things like é and ö). Please import your own if you need to. I consider number rows too.
     # Of course, Dvorak is not as intuitive. I replaced special characters with a whitespace for sake of consistency.
-    # "a-z" only considers English letters. For French, for example, you can import valid_letters = ["a-z", "é", "É", "à", "À", "ê". "Ê". "è", "È"]
-    def __init__(self, dictionary_list=os.path.join("test_files", "20k_database.txt"), valid_letters="a-z", keyboard="qwerty", *, alpha=None, beta=0.85, b=10, shortlist_size=100, keyboard_shortlist_size=75, transposition_bonus=0.35, reversal_weight=0.80):
+    # "a-z" only considers English letters. For French, for example, you can import valid_letters = ["a-z", "é", "É", "à", "À", "ê", "Ê", "è", "È"]
+    def __init__(self, dictionary_list=os.path.join("test_files", "20k_database.txt"), valid_letters="a-z", keyboard="qwerty", *, alpha=None, beta=0.85, b=10, shortlist_size=100, keyboard_shortlist_size=75, transposition_bonus=0.35):
         self.letters = self._build_valid_letter_set(valid_letters)
         self.keyboard = self._build_keyboard(keyboard)
         self.KEY_POS = self._build_key_positions(self.keyboard)
@@ -135,16 +115,12 @@ class Autocorrector:
         self.shortlist_size = int(shortlist_size)
         self.keyboard_shortlist_size = int(keyboard_shortlist_size)
         self.transposition_bonus = float(transposition_bonus)
-        self.reversal_weight = float(reversal_weight)
 
         if self.shortlist_size <= 0:
             raise ValueError("`shortlist_size` must be positive")
 
         if self.keyboard_shortlist_size <= 0:
             raise ValueError("`keyboard_shortlist_size` must be positive")
-
-        if not 0.0 <= self.reversal_weight <= 1.0:
-            raise ValueError("`reversal_weight` must be between 0 and 1")
 
         self.removed_words = set()
         self.compact_threshold = 0.1
@@ -410,18 +386,13 @@ class Autocorrector:
     def _rank_candidates(self, query, use_keyboard, print_details=False):
         retrieval_qgrams = set(extract_qgrams(query, self.q))
         scoring_qgrams = retrieval_qgrams
-        reversed_scoring_qgrams = set(extract_reversed_qgrams(query, self.q))
 
         if print_details:
-            print(f"Query {query!r}: features={len(scoring_qgrams)}, reversed_features={len(reversed_scoring_qgrams)}")
+            print(f"Query {query!r}: features={len(scoring_qgrams)}")
             print("Structural q-grams: " + ", ".join(repr(gram) for gram in sorted(scoring_qgrams)))
-            print("Loose reversed q-grams: " + ", ".join(repr(gram) for gram in sorted(reversed_scoring_qgrams)))
 
         query_sketch = self.build_query_sketch(scoring_qgrams)
         query_estimate = query_sketch.estimate()
-
-        reversed_query_sketch = self.build_query_sketch(reversed_scoring_qgrams)
-        reversed_query_estimate = (reversed_query_sketch.estimate())
 
         candidate_indices = self._candidate_indices(retrieval_qgrams)
         retrieved_count = len(candidate_indices)
@@ -440,7 +411,7 @@ class Autocorrector:
         candidate_indices = list(candidate_map.items())
 
         if print_details:
-            rescued_count =len(candidate_indices) - retrieved_count
+            rescued_count = len(candidate_indices) - retrieved_count
             print(f"Candidates: {retrieved_count} retrieved, {rescued_count} transposition-rescued, {len(candidate_indices)} total")
 
         preliminary = []
@@ -453,14 +424,7 @@ class Autocorrector:
             structural_intersection = max(0.0, query_estimate + word_estimate - structural_union)
             structural_intersection = min(structural_intersection, query_estimate, word_estimate)
 
-            normal_structural_score = self._score_from_sizes(intersection=structural_intersection, left_size=query_estimate)
-            reversed_union = reversed_query_sketch.union_estimate(word_sketch)
-            reversed_intersection = max(0.0, reversed_query_estimate + word_estimate - reversed_union)
-            reversed_intersection = min(reversed_intersection, reversed_query_estimate, word_estimate)
-            reversed_structural_score = self._score_from_sizes(intersection=reversed_intersection,left_size=reversed_query_estimate)
-
-            structural_score = min(1.0, normal_structural_score + self.reversal_weight * max(0.0, reversed_structural_score - normal_structural_score))
-
+            structural_score = self._score_from_sizes(intersection=structural_intersection, left_size=query_estimate)
             candidate = self.word_dict[idx]
 
             length_ratio = abs(len(candidate) - len(query)) / max(len(query), 1)
@@ -468,7 +432,7 @@ class Autocorrector:
             exact_bonus = 1.0 if query == candidate else 0.0
 
             preliminary_score = structural_score * length_score + exact_bonus
-            preliminary.append((preliminary_score, idx, structural_score, exact_overlap, length_score, normal_structural_score, reversed_structural_score, word_estimate, structural_union, structural_intersection, reversed_union, reversed_intersection))
+            preliminary.append((preliminary_score, idx, structural_score, exact_overlap, length_score, word_estimate, structural_union, structural_intersection))
 
         preliminary.sort(key=lambda item: (-item[0], item[1]))
 
@@ -476,7 +440,7 @@ class Autocorrector:
 
         ranked = []
 
-        for position, (preliminary_score, idx, structural_score, exact_overlap, length_score, normal_structural_score, reversed_structural_score, word_estimate, structural_union, structural_intersection, reversed_union, reversed_intersection) in enumerate(preliminary):
+        for position, (preliminary_score, idx, structural_score, exact_overlap, length_score, word_estimate, structural_union, structural_intersection) in enumerate(preliminary):
             candidate = self.word_dict[idx]
 
             if use_keyboard and position < keyboard_limit:
@@ -489,20 +453,19 @@ class Autocorrector:
 
             score = structural_score * length_score + self.beta * keyboard_score + transposition_bonus + exact_bonus
 
-            ranked.append((score, idx, structural_score, exact_overlap, normal_structural_score, reversed_structural_score, length_score, keyboard_score, transposition_bonus, exact_bonus, word_estimate, structural_union, structural_intersection, reversed_union, reversed_intersection))
+            ranked.append((score, idx, structural_score, exact_overlap, length_score, keyboard_score, transposition_bonus, exact_bonus, word_estimate, structural_union, structural_intersection))
 
         ranked.sort(key=lambda item: (-item[0], item[1]))
 
         if print_details:
             print("Top ranked candidates:")
 
-            for (score, idx, structural_score, exact_overlap, normal_structural_score, reversed_structural_score, length_score, keyboard_score, transposition_bonus, exact_bonus, word_estimate, structural_union, structural_intersection, reversed_union, reversed_intersection) in ranked[:5]:
+            for (score, idx, structural_score, exact_overlap, length_score, keyboard_score, transposition_bonus, exact_bonus, word_estimate, structural_union, structural_intersection) in ranked[:5]:
                 candidate = self.word_dict[idx]
                 print(f"  {candidate!r}:")
                 print(f"    retrieval overlap: {exact_overlap}")
                 print(f"    HLL++ normal: query={query_estimate:.6f}, candidate={word_estimate:.6f}, union={structural_union:.6f}, intersection={structural_intersection:.6f}")
-                print(f"    HLL++ reversed: query={reversed_query_estimate:.6f}, candidate={word_estimate:.6f}, union={reversed_union:.6f}, intersection={reversed_intersection:.6f}")
-                print(f"    structural: normal={normal_structural_score:.6f}, reversed={reversed_structural_score:.6f}, blended={structural_score:.6f}")
+                print(f"    structural: containment={structural_score:.6f}")
 
                 structural_contribution = structural_score * length_score
                 keyboard_contribution = self.beta * keyboard_score

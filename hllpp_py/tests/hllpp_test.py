@@ -24,21 +24,21 @@ if __name__ == "__main__":
 
     """
     Runtimes:
-    Dictionary preprocessing:  0.962s
-    Current query batch:       4.799s
-    Total autocorrect:         5.761s
+    Dictionary preprocessing:  0.986s
+    Current query batch:       4.074s
+    Total autocorrect:         5.061s
 
-    Dictionary preprocessing:  0.960s
-    Current query batch:       6.011s
-    Total autocorrect:         6.971s
+    Dictionary preprocessing:  0.966s
+    Current query batch:       4.965s
+    Total autocorrect:         5.932s
 
-    Dictionary preprocessing:  0.959s
-    Current query batch:       4.041s
-    Total top-3:               4.999s
+    Dictionary preprocessing:  0.968s
+    Current query batch:       3.909s
+    Total top-3:               4.877s
 
-    Dictionary preprocessing:  1.461s
-    Current query batch:       5.951s
-    Total top-3:               7.412s
+    Dictionary preprocessing:  0.990s
+    Current query batch:       5.085s
+    Total top-3:               6.075s
     """
 
     # Run files
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     Accuracy:
     68~69%
     71~72%
-    84~85%
+    85~86%
     88~89%
     """
 
@@ -73,21 +73,21 @@ if __name__ == "__main__":
 
     """
     Runtimes:
-    Dictionary preprocessing:  0.023s
-    Current query batch:       0.494s
-    Total autocorrect:         0.518s
+    Dictionary preprocessing:  0.024s
+    Current query batch:       0.322s
+    Total autocorrect:         0.347s
 
     Dictionary preprocessing:  0.024s
-    Current query batch:       1.579s
-    Total autocorrect:         1.603s
+    Current query batch:       1.437s
+    Total autocorrect:         1.461s
 
     Dictionary preprocessing:  0.024s
-    Current query batch:       0.496s
-    Total top-3:               0.521s
+    Current query batch:       0.326s
+    Total top-3:               0.350s
 
-    Dictionary preprocessing:  0.024s
-    Current query batch:       1.547s
-    Total top-3:               1.571s
+    Dictionary preprocessing:  0.025s
+    Current query batch:       1.394s
+    Total top-3:               1.418s
     """
 
     # Run files
