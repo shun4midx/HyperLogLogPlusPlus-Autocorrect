@@ -18,7 +18,7 @@ Now, you can use the library!
 If you ever want to uninstall, feel free to use `pip uninstall` as the prefix.
 
 ## Usage
-The library defaults to searching within its own folder before searching in your local directory. There are two text files offered as base dictionaries: `20k_database.txt` and `database.txt`, with around 20000 and 400 words respectively. The below code would only visit the local directory. If no dictionary is specified, `20k_database.txt` would be used instead.
+The library defaults to searching within its own folder before searching in your local directory. There are two text files offered as base dictionaries: `20k_database.txt` (which used to be named `20k_shun4midx.txt` in FQ-HLL, so both names can be used interchangably) and `database.txt`, with around 20000 and 400 words respectively. The below code would only visit the local directory. If no dictionary is specified, `20k_database.txt` would be used instead.
 
 What is returned is in the form of a dictionary, mapping each query to either a single string for `autocorrect` or a list of three strings for `top3`. 
 
@@ -89,7 +89,7 @@ compare3_files(suggestions, typos, answers)
 Of course, `hllpp` can be replaced with `dyslexicplusplus` here too, depending on which version you install.
 
 ## Remark on Keyboards
-As a side note, I made the QWERTY keyboard (including AZERTY, QWERTZ, Colemak, Dvorak, or any other custom keyboard layout) as toggleable parameters to influence my HLLPP, since I am coding with [Ducky](https://github.com/ducky4life) to create an HLLPP Android keyboard. In this case, runtime slowed down by only 1 second for the `20k_shun4midx.txt` file, but achieving accuracy of **71~72%** and **88~89%**, for the autocorrection and top 3 results respectively. However, the main takeaway of this repository is how strong HLLPP is without the knowledge of a keyboard layout, which is why I make it something that can be turned off, and most results would be dedicated to that.
+As a side note, I made the QWERTY keyboard (including AZERTY, QWERTZ, Colemak, Dvorak, or any other custom keyboard layout) as toggleable parameters to influence my HLLPP, since I am coding with [Ducky](https://github.com/ducky4life) to create an HLLPP Android keyboard. In this case, runtime slowed down by only 1 second for the `20k_database.txt` file, but achieving accuracy of **71~72%** and **88~89%**, for the autocorrection and top 3 results respectively. However, the main takeaway of this repository is how strong HLLPP is without the knowledge of a keyboard layout, which is why I make it something that can be turned off, and most results would be dedicated to that.
 
 Notice, these keyboards are accessible in `Python` for example via:
 
