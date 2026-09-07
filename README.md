@@ -11,7 +11,7 @@ This implementation uses the higher-precision sparse representation introduced b
 - [Context](#context)
 - [Results](#results)
 - [Remark on Keyboards](#remark-on-keyboards)
-- [Annecdotal Comparison with FQ-HLL](#annecdotal-qualitative-comparison-with-fq-hll-autocorrection)
+- [Anecdotal Comparison with FQ-HLL](#anecdotal-qualitative-comparison-with-fq-hll-autocorrection)
 - [Notes](#notes)
 - [Plans](#plans-for-the-repo)
 - [Current Usages](#current-repos-using-this-hllpp-library)
@@ -22,7 +22,7 @@ This implementation uses the higher-precision sparse representation introduced b
 
 The HLLPP Autocorrection algorithm is a continuation of the [FQ-HLL Autocorrection](https://github.com/shun4midx/FQ-HyperLogLog-Autocorrect) algorithm. Although, as the name suggests, FQ-HLL uses a modified form of HLL to perform autocorrection, and HLLPP uses HLL++ under sparse contexts to perform autocorrection, they are fundamentally structured quite differently, from estimation down to scoring, and are **NOT simply the same algorithm** with FQ-HLL replaced with HLL++.
 
-HLLPP was also created to fix some minor annecdotal qualitative stylistic flaws with FQ-HLL's prioritization ranking suggestions, with more detail written [later in the README](https://github.com/shun4midx/HyperLogLogPlusPlus-Autocorrect#annecdotal-qualitative-comparison-with-fq-hll-autocorrection). Above all, it is made to be faster and more accurate than FQ-HLL.
+HLLPP was also created to fix some minor anecdotal qualitative stylistic flaws with FQ-HLL's prioritization ranking suggestions, with more detail written [later in the README](https://github.com/shun4midx/HyperLogLogPlusPlus-Autocorrect#anecdotal-qualitative-comparison-with-fq-hll-autocorrection). Above all, it is made to be faster and more accurate than FQ-HLL.
 
 ## Results
 ### Setting Description (same as in FQ-HLL)
@@ -75,8 +75,14 @@ As a side note, I made the QWERTY keyboard (including AZERTY, QWERTZ, Colemak, D
 
 Specific details in how these keyboards can be accessed in the programming languages are available in `hllpp_cpp/README.md` and `hllpp_py/README.md` separately.
 
-## Annecdotal Qualitative Comparison with FQ-HLL Autocorrection
-[Will be written later, specifically about less "reflection at the boundary of words"]
+## Anecdotal Qualitative Comparison with FQ-HLL Autocorrection
+FQ-HLL has its flaws that came with the naive implementation of dyslexia-friendly autocorrection based on a "dyslexic impression" of a word via q-grams, without caring about order, and also it being **too** fuzzy with its suggestions, due to the fuzzing of each q-gram, sometimes suggesting words like "information" if there is low accuracy signal for any word.
+
+Namely, one specific problem was FQ-HLL loved "reflecting" at the boundary of words, since it viewed both q-grams in the correct and reverse order quite heavily. For example, the word "varely" would look like a typo of the word "barely", but FQ-HLL would reflect the "ar" to "ra" and combine it in its suggestion to suggest "rarely". Similarly, FQ-HLL upon seeing "habe", would reflect "ab" to "ba" and suggest "babe" instead of "have". At this time, I thought this was a needed tradeoff if I wanted to preserve dyslexia-friendly q-gram reading, but it was a noticeable problem when used as a main keyboard.
+
+HLLPP resolves both problems by firstly, padding a typo as ` typo `, then extracting the q-grams with the spaces at the boundaries. This avoids the problem of "reflecting" at the boundaries. Secondly, HLLPP separates forward-order and reverse-order q-gram signals in its calculations. "Fuzzy" q-grams like "ab" being also "a " and " b" are now only present when looking at the word in reverse order, otherwise there is no fuzziness to the q-grams when reading in the right order. When doing so, HLLPP is less prone to producing overly fuzzy suggestions, but it still seems to preserve quite a bit of dyslexia-friendly typing, yet also suggests more intended results at higher confidence levels than before. For example, "varely" would suggest "barely" and "habe" would suggest "have".
+
+Clearly, HLLPP does have some imperfections. For example "ita" wouldn't rank the suggestion "its" very highly. However, overall, it seems to resolve the problems FQ-HLL had and provide anecdotally more intended results.
 
 ## Notes
  - This library does not collect personal data.
