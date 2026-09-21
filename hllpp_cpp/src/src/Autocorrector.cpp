@@ -941,6 +941,13 @@ std::vector<RankedCandidate> Autocorrector::rank_candidates(const std::string& q
         candidate_map[idx] = overlap;
     }
 
+    // Exact-match rescue
+    auto exact_it = word_to_idx.find(query);
+
+    if (exact_it != word_to_idx.end() && removed_words.find(query) == removed_words.end()) {
+        candidate_map.emplace(exact_it->second, 0);
+    }
+
     // Adjacent-transposition rescue
     for (std::size_t i = 0; i + 1 < query.length(); ++i) {
         if (query[i] == query[i + 1]) {
