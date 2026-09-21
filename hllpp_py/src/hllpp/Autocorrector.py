@@ -398,6 +398,12 @@ class Autocorrector:
         retrieved_count = len(candidate_indices)
         candidate_map = dict(candidate_indices)
 
+        # Exact-match rescue
+        idx = self.word_to_idx.get(query)
+
+        if idx is not None and query not in self.removed_words:
+            candidate_map.setdefault(idx, 0)
+
         for i in range(len(query) - 1):
             if query[i] == query[i + 1]:
                 continue
