@@ -100,7 +100,7 @@ Personally, I've always had an interest in autocorrect because I'm dyslexic and 
 
 ## Current Repos using this HLLPP Library
 <a href="https://github.com/shun4midx/HyperLogLogPlusPlus-Autocorrect/tree/main/hllpp_cpp"><img src="https://img.shields.io/badge/c++-%23f34b7d.svg?style=for-the-badge&logo=c%2B%2B">
- - `HLLPP Keyboard` (To be released to the public soon): [An Android mobile keyboard](https://github.com/shun4midx/HLLPP-Keyboard) that integrates this HLLPP autocorrect library. It serves as a semi-official real-world use case for the algorithm alongside this specific library, and I am beyond honored to be a part of its development with [Ducky](https://github.com/ducky4life).
+ - `HLLPP Keyboard`: [An Android mobile keyboard](https://github.com/shun4midx/HLLPP-Keyboard) that integrates this HLLPP autocorrect library. It serves as a semi-official real-world use case for the algorithm alongside this specific library, and I am beyond honored to be a part of its development with [Ducky](https://github.com/ducky4life).
 
  <a href="https://github.com/shun4midx/HyperLogLogPlusPlus-Autocorrect/tree/main/hllpp_py"><img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=fff&style=for-the-badge">
 
